@@ -1,4 +1,4 @@
-const socket = io("https://secure-p2p-share.onrender.com/");
+const socket = io("https://secure-p2p-share.onrender.com", { transports: ['websocket', 'polling'] });
 let peerConn;
 let dataChannel;
 
