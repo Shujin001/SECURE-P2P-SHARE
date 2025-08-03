@@ -80,11 +80,11 @@ function setupChannel() {
     console.log("✅ Data channel open");
   };
   dataChannel.onmessage = e => {
-    const data = JSON.parse(e.data);
-    console.log("📨 Message received:", data);
-    if (data.type === 'text') {
-      chatLog.value += 'Peer: ' + data.content + '\n';
-    } else if (data.type === 'file') {
+  const data = JSON.parse(e.data);
+  if (data.type === 'text') {
+    chatLog.innerHTML += `<div class="peer">${data.content}</div>`;
+    chatLog.scrollTop = chatLog.scrollHeight;
+  } else if (data.type === 'file') {
       const blob = new Blob([new Uint8Array(data.content)], { type: data.mime });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
@@ -101,7 +101,8 @@ sendMsg.onclick = () => {
   const msg = msgInput.value;
   if (dataChannel && dataChannel.readyState === 'open') {
     dataChannel.send(JSON.stringify({ type: 'text', content: msg }));
-    chatLog.value += 'You: ' + msg + '\n';
+    chatLog.innerHTML += `<div class="you">${msg}</div>`;
+    chatLog.scrollTop = chatLog.scrollHeight;
     msgInput.value = '';
   } else {
     chatLog.value += '❗ Data channel not ready. Try joining with another device/browser.\n';

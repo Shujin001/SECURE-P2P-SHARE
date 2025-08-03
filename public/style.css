@@ -1,12 +1,143 @@
 body {
-  font-family: Arial, sans-serif;
-  margin: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f0f2f5;
+  margin: 0;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  color: #050505;
 }
-input, textarea {
-  width: 80%;
-  margin: 10px 0;
-  padding: 8px;
+
+h2 {
+  margin-bottom: 20px;
+  color: #1877f2;
+  font-weight: 700;
 }
-textarea {
-  height: 150px;
+
+#roomInput {
+  width: 300px;
+  padding: 12px 15px;
+  font-size: 16px;
+  border-radius: 25px;
+  border: 1px solid #dddfe2;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+#roomInput:focus {
+  border-color: #1877f2;
+  box-shadow: 0 0 5px rgba(24, 119, 242, 0.5);
+}
+
+#joinBtn {
+  margin-top: 10px;
+  padding: 12px 30px;
+  background-color: #1877f2;
+  border: none;
+  border-radius: 25px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+#joinBtn:hover {
+  background-color: #145dbf;
+}
+
+#chatSection {
+  margin-top: 30px;
+  width: 400px;
+  max-width: 90vw;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #dddfe2;
+  border-radius: 10px;
+  background: white;
+  height: 500px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+#chatLog {
+  flex-grow: 1;
+  padding: 15px;
+  border-bottom: 1px solid #dddfe2;
+  overflow-y: auto;
+  font-size: 14px;
+  line-height: 1.4;
+  background-color: #f5f6f7;
+  border-radius: 10px 10px 0 0;
+  white-space: pre-wrap;
+}
+
+/* Chat bubbles for messages */
+#chatLog span {
+  display: block;
+  max-width: 75%;
+  margin-bottom: 8px;
+  padding: 10px 15px;
+  border-radius: 20px;
+  line-height: 1.3;
+}
+
+/* You (right-aligned bubble) */
+#chatLog .you {
+  background-color: #1877f2;
+  color: white;
+  align-self: flex-end;
+  border-radius: 20px 20px 0 20px;
+  margin-left: auto;
+}
+
+/* Peer (left-aligned bubble) */
+#chatLog .peer {
+  background-color: #e4e6eb;
+  color: #050505;
+  border-radius: 20px 20px 20px 0;
+  margin-right: auto;
+}
+
+#msgInput {
+  padding: 12px 15px;
+  border: none;
+  border-top: 1px solid #dddfe2;
+  font-size: 16px;
+  outline: none;
+  width: calc(100% - 130px);
+  border-radius: 0 0 0 10px;
+}
+
+#sendMsg {
+  width: 110px;
+  border: none;
+  background-color: #1877f2;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  border-radius: 0 0 10px 0;
+}
+
+#sendMsg:hover {
+  background-color: #145dbf;
+}
+
+#fileInput {
+  margin: 15px 15px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+#status a {
+  display: block;
+  margin-top: 10px;
+  color: #1877f2;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+#status a:hover {
+  text-decoration: underline;
 }
