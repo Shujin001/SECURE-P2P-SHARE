@@ -2,8 +2,6 @@ const socket = io("https://secure-p2p-share.onrender.com", { transports: ['webso
 let peerConn;
 let dataChannel;
 
-const joinBtn = document.getElementById('joinBtn');
-const roomInput = document.getElementById('roomInput');
 const chatSection = document.getElementById('chatSection');
 const chatLog = document.getElementById('chatLog');
 const msgInput = document.getElementById('msgInput');
@@ -11,12 +9,30 @@ const sendMsg = document.getElementById('sendMsg');
 const fileInput = document.getElementById('fileInput');
 const status = document.getElementById('status');
 
-joinBtn.onclick = async () => {
-  const room = roomInput.value;
+const nameInput = document.getElementById('nameInput');
+const roomInput = document.getElementById('roomInput');
+const joinBtn = document.getElementById('joinBtn');
+
+let myName = "";
+
+joinBtn.onclick = () => {
+  myName = nameInput.value.trim();
+  const room = roomInput.value.trim();
+
+  if (!myName) {
+    alert("Please enter your name");
+    return;
+  }
+  if (!room) {
+    alert("Please enter a room code");
+    return;
+  }
+
   socket.emit('join', room);
   initPeer(true);
-  chatSection.style.display = 'block';
+  chatSection.style.display = 'flex';  // assuming chatSection is flex container
 };
+
 
 socket.on('peer-joined', () => {
   console.log("👥 Peer joined! Initializing connection...");
@@ -82,8 +98,8 @@ function setupChannel() {
   dataChannel.onmessage = e => {
   const data = JSON.parse(e.data);
   if (data.type === 'text') {
-    chatLog.innerHTML += `<div class="peer">${data.content}</div>`;
-    chatLog.scrollTop = chatLog.scrollHeight;
+    appendMessage(data.name, data.content, false);
+  
   } else if (data.type === 'file') {
       const blob = new Blob([new Uint8Array(data.content)], { type: data.mime });
       const a = document.createElement('a');
@@ -98,16 +114,15 @@ function setupChannel() {
 
 
 sendMsg.onclick = () => {
-  const msg = msgInput.value;
-  if (dataChannel && dataChannel.readyState === 'open') {
-    dataChannel.send(JSON.stringify({ type: 'text', content: msg }));
-    chatLog.innerHTML += `<div class="you">${msg}</div>`;
-    chatLog.scrollTop = chatLog.scrollHeight;
-    msgInput.value = '';
-  } else {
-    chatLog.value += '❗ Data channel not ready. Try joining with another device/browser.\n';
-  }
+  const msg = msgInput.value.trim();
+  if (!msg) return;
+
+  const messageData = { type: 'text', content: msg, name: myName };
+  dataChannel.send(JSON.stringify(messageData));
+  appendMessage(myName, msg, true);
+  msgInput.value = '';
 };
+
 
 
 fileInput.onchange = () => {
@@ -124,3 +139,23 @@ fileInput.onchange = () => {
   };
   reader.readAsArrayBuffer(file);
 };
+function appendMessage(name, message, isMine) {
+  const msgDiv = document.createElement('div');
+  msgDiv.classList.add('message');
+  msgDiv.classList.add(isMine ? 'you' : 'peer');
+
+  // Add the sender name above the message bubble
+  const nameDiv = document.createElement('div');
+  nameDiv.classList.add('sender-name');
+  nameDiv.textContent = name;
+  msgDiv.appendChild(nameDiv);
+
+  // Add the message text
+  const textDiv = document.createElement('div');
+  textDiv.classList.add('message-text');
+  textDiv.textContent = message;
+  msgDiv.appendChild(textDiv);
+
+  chatLog.appendChild(msgDiv);
+  chatLog.scrollTop = chatLog.scrollHeight; // scroll to bottom
+}
