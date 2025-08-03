@@ -179,9 +179,10 @@ fileInput.onchange = () => {
     type: 'file-meta',
     name: file.name,
     size: file.size,
-    mime: file.type,
-    senderName: "you"
+    mime: file.type
   }));
+  chatLog.innerHTML += `<div class="you">File received: ${incomingFileInfo.name}</div>`;
+  chatLog.scrollTop = chatLog.scrollHeight;
 
   const reader = new FileReader();
 
