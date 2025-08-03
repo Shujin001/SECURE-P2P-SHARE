@@ -62,8 +62,13 @@ function initPeer(initiator) {
 }
 
 function setupChannel() {
+  console.log("Data channel setup");
+  dataChannel.onopen = () => {
+    console.log("✅ Data channel open");
+  };
   dataChannel.onmessage = e => {
     const data = JSON.parse(e.data);
+    console.log("📨 Message received:", data);
     if (data.type === 'text') {
       chatLog.value += 'Peer: ' + data.content + '\n';
     } else if (data.type === 'file') {
@@ -78,12 +83,18 @@ function setupChannel() {
   };
 }
 
+
 sendMsg.onclick = () => {
   const msg = msgInput.value;
-  dataChannel.send(JSON.stringify({ type: 'text', content: msg }));
-  chatLog.value += 'You: ' + msg + '\n';
-  msgInput.value = '';
+  if (dataChannel && dataChannel.readyState === 'open') {
+    dataChannel.send(JSON.stringify({ type: 'text', content: msg }));
+    chatLog.value += 'You: ' + msg + '\n';
+    msgInput.value = '';
+  } else {
+    chatLog.value += '❗ Data channel not ready. Try joining with another device/browser.\n';
+  }
 };
+
 
 fileInput.onchange = () => {
   const file = fileInput.files[0];
