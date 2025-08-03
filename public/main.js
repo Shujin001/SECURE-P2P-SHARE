@@ -18,7 +18,10 @@ joinBtn.onclick = async () => {
   chatSection.style.display = 'block';
 };
 
-socket.on('peer-joined', () => initPeer(false));
+socket.on('peer-joined', () => {
+  console.log("👥 Peer joined! Initializing connection...");
+  initPeer(false)
+});
 
 socket.on('signal', async data => {
   if (data.sdp) {
