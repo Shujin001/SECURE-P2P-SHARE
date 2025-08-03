@@ -1,4 +1,4 @@
-const socket = io();
+const socket = io("https://secure-p2p-share.onrender.com/");
 let peerConn;
 let dataChannel;
 
