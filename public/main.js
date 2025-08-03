@@ -95,21 +95,60 @@ function setupChannel() {
   dataChannel.onopen = () => {
     console.log("✅ Data channel open");
   };
-  dataChannel.onmessage = e => {
-  const data = JSON.parse(e.data);
-  if (data.type === 'text') {
-    appendMessage(data.name, data.content, false);
-  
-  } else if (data.type === 'file') {
-      const blob = new Blob([new Uint8Array(data.content)], { type: data.mime });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = data.name;
-      a.textContent = 'Download ' + data.name;
-      chatLog.value += `\nFile received: ${data.name}\n`;
-      status.appendChild(a);
+  let incomingFileInfo = null;
+let incomingFileData = [];
+let incomingFileReceivedSize = 0;
+
+dataChannel.onmessage = e => {
+  if (typeof e.data === 'string') {
+    // Could be JSON message or text
+    let data;
+    try {
+      data = JSON.parse(e.data);
+    } catch {
+      // Not JSON, treat as plain text message
+      chatLog.innerHTML += `<div class="peer">${e.data}</div>`;
+      chatLog.scrollTop = chatLog.scrollHeight;
+      return;
     }
-  };
+
+    if (data.type === 'text') {
+      chatLog.innerHTML += `<div class="peer">${data.content}</div>`;
+      chatLog.scrollTop = chatLog.scrollHeight;
+    } else if (data.type === 'file-meta') {
+      // Prepare to receive file
+      incomingFileInfo = data;
+      incomingFileData = [];
+      incomingFileReceivedSize = 0;
+      console.log('Incoming file:', incomingFileInfo.name);
+    }
+  } else {
+    // Binary chunk received
+    incomingFileData.push(e.data);
+    incomingFileReceivedSize += e.data.byteLength;
+
+    if (incomingFileReceivedSize === incomingFileInfo.size) {
+      // All chunks received - reconstruct file
+      const receivedBlob = new Blob(incomingFileData, { type: incomingFileInfo.mime });
+      const url = URL.createObjectURL(receivedBlob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = incomingFileInfo.name;
+      a.textContent = `Download ${incomingFileInfo.name}`;
+      status.appendChild(a);
+
+      chatLog.innerHTML += `<div class="peer">File received: ${incomingFileInfo.name}</div>`;
+      chatLog.scrollTop = chatLog.scrollHeight;
+
+      // Reset
+      incomingFileInfo = null;
+      incomingFileData = [];
+      incomingFileReceivedSize = 0;
+    }
+  }
+};
+
 }
 
 
@@ -127,18 +166,45 @@ sendMsg.onclick = () => {
 
 fileInput.onchange = () => {
   const file = fileInput.files[0];
+  if (!dataChannel || dataChannel.readyState !== 'open') {
+    alert('Data channel not ready. Cannot send file.');
+    return;
+  }
+
+  const chunkSize = 16 * 1024; // 16KB chunks
+  let offset = 0;
+
+  // Send file metadata first
+  dataChannel.send(JSON.stringify({
+    type: 'file-meta',
+    name: file.name,
+    size: file.size,
+    mime: file.type
+  }));
+
   const reader = new FileReader();
-  reader.onload = () => {
-    dataChannel.send(JSON.stringify({
-      type: 'file',
-      content: Array.from(new Uint8Array(reader.result)),
-      name: file.name,
-      mime: file.type
-    }));
-    chatLog.value += `You sent file: ${file.name}\n`;
+
+  reader.onload = e => {
+    dataChannel.send(e.target.result); // send ArrayBuffer chunk
+    offset += chunkSize;
+    if (offset < file.size) {
+      readSlice(offset);
+    } else {
+      console.log('File sent completely.');
+      chatLog.innerHTML += `<div class="you">You sent file: ${file.name}</div>`;
+      chatLog.scrollTop = chatLog.scrollHeight;
+    }
   };
-  reader.readAsArrayBuffer(file);
+
+  function readSlice(o) {
+    const slice = file.slice(o, o + chunkSize);
+    reader.readAsArrayBuffer(slice);
+  }
+
+  // Start reading first slice
+  readSlice(0);
 };
+
 function appendMessage(name, message, isMine) {
   const msgDiv = document.createElement('div');
   msgDiv.classList.add('message');
