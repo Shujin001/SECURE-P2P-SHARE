@@ -113,7 +113,7 @@ dataChannel.onmessage = e => {
     }
 
     if (data.type === 'text') {
-      chatLog.innerHTML += `<div class="peer">${data.content}</div>`;
+      appendMessage(data.name || "Peer", data.content, false);
       chatLog.scrollTop = chatLog.scrollHeight;
     } else if (data.type === 'file-meta') {
       // Prepare to receive file
@@ -180,9 +180,7 @@ fileInput.onchange = () => {
     name: file.name,
     size: file.size,
     mime: file.type
-  }));
-  chatLog.innerHTML += `<div class="you">File received: ${incomingFileInfo.name}</div>`;
-  chatLog.scrollTop = chatLog.scrollHeight;
+  }));  
 
   const reader = new FileReader();
 
