@@ -175,6 +175,7 @@ h2 {
   margin: 10px 0;
 }
 .custom-file-label {
+  width: fit-content;
   background-color: #007bff;
   color: white;
   padding: 10px 16px;
