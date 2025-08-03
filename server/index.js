@@ -4,7 +4,16 @@ const { Server } = require('socket.io');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: "https://secrettalkz.netlify.app", // ✅ your Netlify frontend
+    methods: ["GET", "POST"]
+  }
+});
+const cors = require('cors');
+app.use(cors({
+  origin: "https://secrettalkz.netlify.app"
+}));
 
 app.use(express.static('public'));
 
