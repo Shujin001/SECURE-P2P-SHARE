@@ -16,8 +16,10 @@
     <input id="msgInput" placeholder="Type message..." />
     <button id="sendMsg">Send</button>
     <br><br>
-    <input type="file" id="fileInput">Picture</input>
-    <div id="status"></div>
+    <label for="fileInput" class="custom-file-label">📎 Send File</label>
+  <input type="file" id="fileInput" style="display: none;">
+  <span id="fileName">No file chosen</span>
+  <div id="status"></div>
   </div>
 
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>

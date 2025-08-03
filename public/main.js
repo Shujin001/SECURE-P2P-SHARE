@@ -166,6 +166,7 @@ sendMsg.onclick = () => {
 
 fileInput.onchange = () => {
   const file = fileInput.files[0];
+  document.getElementById('fileName').textContent = file ? file.name : 'No file chosen';
   if (!dataChannel || dataChannel.readyState !== 'open') {
     alert('Data channel not ready. Cannot send file.');
     return;
