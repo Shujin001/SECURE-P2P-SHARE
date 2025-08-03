@@ -179,7 +179,8 @@ fileInput.onchange = () => {
     type: 'file-meta',
     name: file.name,
     size: file.size,
-    mime: file.type
+    mime: file.type,
+    senderName: myname
   }));
 
   const reader = new FileReader();
