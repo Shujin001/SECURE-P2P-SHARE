@@ -9,14 +9,14 @@ const io = new Server(server);
 app.use(express.static('public'));
 
 io.on('connection', socket => {
-  socket.on('join', room => {
-    socket.join(room);
-    socket.to(room).emit('peer-joined');
-  });
+  socket.on('join', (room) => {
+  socket.join(room);
+  socket.to(room).emit('peer-joined'); // 🔥 Critical
+});
 
-  socket.on('signal', ({ room, data }) => {
-    socket.to(room).emit('signal', data);
-  });
+socket.on('signal', ({ room, data }) => {
+  socket.to(room).emit('signal', data); // 🔁 Relay SDP and ICE
+});
 });
 
 const PORT = process.env.PORT || 3000;

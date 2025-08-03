@@ -35,31 +35,41 @@ socket.on('signal', async data => {
 });
 
 function initPeer(initiator) {
-  peerConn = new RTCPeerConnection();
-
-  if (initiator) {
-    dataChannel = peerConn.createDataChannel('chat');
-    setupChannel();
-  } else {
-    peerConn.ondatachannel = e => {
-      dataChannel = e.channel;
-      setupChannel();
-    };
-  }
+  console.log("Initializing peer, initiator:", initiator);
+  
+  peerConn = new RTCPeerConnection({
+    iceServers: [
+      { urls: "stun:stun.l.google.com:19302" }
+    ]
+  });
 
   peerConn.onicecandidate = e => {
     if (e.candidate) {
+      console.log("Sending ICE candidate");
       socket.emit('signal', { room: roomInput.value, data: { candidate: e.candidate } });
     }
   };
 
+  peerConn.onconnectionstatechange = () => {
+    console.log("Peer connection state:", peerConn.connectionState);
+  };
+
   if (initiator) {
+    dataChannel = peerConn.createDataChannel('chat');
+    setupChannel();
     peerConn.createOffer().then(offer => {
       peerConn.setLocalDescription(offer);
       socket.emit('signal', { room: roomInput.value, data: { sdp: offer } });
     });
+  } else {
+    peerConn.ondatachannel = e => {
+      console.log("📥 Received data channel");
+      dataChannel = e.channel;
+      setupChannel();
+    };
   }
 }
+
 
 function setupChannel() {
   console.log("Data channel setup");
