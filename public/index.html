@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Secure P2P Share</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h2>🔐 Secure P2P Share</h2>
+  <input id="roomInput" placeholder="Enter room code" />
+  <button id="joinBtn">Join Room</button>
+
+  <div id="chatSection" style="display:none;">
+    <textarea id="chatLog" readonly></textarea>
+    <input id="msgInput" placeholder="Type message..." />
+    <button id="sendMsg">Send</button>
+    <br><br>
+    <input type="file" id="fileInput" />
+    <div id="status"></div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>
